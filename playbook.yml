@@ -1,0 +1,28 @@
+--- 
+  - name: Azure DevOps Pipeline
+    hosts: all
+    become: true
+    tasks:
+      - name: update cache
+        apt:
+          state: present
+          update_cache: true
+      - name: install java
+        apt:
+          name: openjdk-17-jdk
+          state: present
+      - name: Download  url
+        ansible.builtin.get_url:
+          url: https://naveenpdp.blob.core.windows.net/ansible/spring-petclinic-3.0.0-SNAPSHOT.jar
+          dest: /tmp/
+          mode: '0777'
+      - name: service file
+        copy:
+          src: springpetclinic.service
+          dest: /etc/systemd/system/
+          mode: '+x'
+      - name: restart
+        systemd: 
+          name: springpetclinic.service
+          state: 'started'
+          
